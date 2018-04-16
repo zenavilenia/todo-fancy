@@ -1,41 +1,54 @@
 <template>
-  <div class="flex-container">
-    <div class="flex-items-left">
-      <div class="flex-container-left">
-        <div class="flex-items-todo">
-          <p>Todo: </p>
-        </div>
-        <div class="flex-items-todo">
-          <input placeholder="new todo..." class="form-control form-control-sm"
-          type="text" v-model="newtodo">
-        </div>
-        <div class="flex-items-todo">
-          <button class="btn btn-primary btn-block" @click="addTodo()">Add</button>
-        </div>
-      </div>
-      <div class ="flex-container-listtodo">
-        <div class ="flex-items-listtodo" v-for="todo in todolist">
-          <div>
-            <textarea name="todo" cols="auto" rows="2" @click="todo.isDisabled = !isDisabled" :disabled="todo.isDisabled">{{todo.task}}</textarea>
-          </div>
-          <button type="button" class="btn btn-danger" @click="deleteTask(todo)">Delete</button>
-          <button class="btn-complete" @click="editTask(todo, true)"><span>Complete </span></button>
-        </div>
-      </div>
+  <div>
+    <div class="navigator">
+      <button type="button" class="btn btn-danger btn-md btn-logout" v-on:click="logout">Logout</button>
     </div>
-    <div class="flex-items-right">
-      <div class="flex-container-right">
-        <div class="flex-items-complete">
-          <p>Complete: </p>
+    <div class="flex-container">
+      <div class="flex-items-left">
+        <div class="flex-container-left">
+          <div class="flex-items-todo">
+            <p>Todo: </p>
+          </div>
+          <div class="flex-items-todo">
+            <input placeholder="new todo..." class="form-control form-control-sm"
+            type="text" v-model="newtodo">
+          </div>
+          <div class="flex-items-todo">
+            <button class="btn btn-primary btn-block" @click="addTodo()">Add</button>
+          </div>
+        </div>
+        <div class ="flex-container-listtodo">
+          <div class ="flex-items-listtodo" v-for="todo,index in todolist" :key="todo._id" :style="{'background-color':todo.bgColor}">
+            <div>
+              <textarea name="todo" cols="auto" rows="2" v-model="todo.task" :disabled="todo.isDisabled"></textarea>
+            </div>
+            <button type="button" class="btn btn-info" @click="editTask(todo)">Edit</button>
+            <select class="form-control color-selector" data-live-search="true" @click="colorPicker(todo._id, selectedColorTodo[index])" v-model="selectedColorTodo[index]" required>
+              <option v-for="color in colors" :value="color"> {{ color }} </option>
+            </select>
+            <button type="button" class="btn btn-danger" @click="deleteTask(todo)">Delete</button>
+            <button class="btn-complete" @click="editIsComplete(todo, true)"><span>Complete </span></button>
+          </div>
         </div>
       </div>
-      <div class ="flex-container-listcomplete">
-        <div class ="flex-items-listcomplete" v-for="complete in completelist">
-          <div>
-            <textarea name="todo" cols="auto" rows="2" disabled>{{complete.task}}</textarea>
+      <div class="flex-items-right">
+        <div class="flex-container-right">
+          <div class="flex-items-complete">
+            <p>Complete: </p>
           </div>
-          <button class="btn-todo" @click="editTask(complete, false)"><span>Todo</span></button>
-          <button type="button" class="btn btn-danger" @click="deleteTask(complete)">Delete</button>
+        </div>
+        <div class ="flex-container-listcomplete">
+          <div class ="flex-items-listcomplete" v-for="complete in completelist" :key="complete._id" :style="{'background-color':complete.bgColor}">
+            <div>
+              <textarea name="todo" cols="auto" rows="2" v-model="complete.task" :disabled="complete.isDisabled"></textarea>
+            </div>
+            <button type="button" class="btn btn-info" @click="editTask(complete)">Edit</button>
+            <select class="form-control color-selector" data-live-search="true" @click="colorPicker(complete._id, selectedColorComplete[index])" v-model="selectedColorComplete[index]" required>
+              <option v-for="color in colors" :value="color"> {{ color }} </option>
+            </select>
+            <button class="btn-todo" @click="editIsComplete(complete, false)"><span>Todo</span></button>
+            <button type="button" class="btn btn-danger" @click="deleteTask(complete)">Delete</button>
+          </div>
         </div>
       </div>
     </div>
@@ -52,6 +65,9 @@ export default {
       newtodo: '',
       todolist: [],
       completelist: [],
+      selectedColorTodo: [],
+      selectedColorComplete: [],
+      colors: ['Red', 'Blue', 'Yellow', 'Aqua', 'BlueViolet', 'Cyan', 'DarkOrchid', 'SteelBlue', 'Teal']
     };
   },
   methods: {
@@ -70,7 +86,7 @@ export default {
           console.log('ini err', err);
         });
     },
-    editTask(todo, isComplete) {
+    editIsComplete(todo, isComplete) {
       axios.put('http://localhost:3000/todo/', {
         id: todo._id,
         isComplete,
@@ -86,8 +102,61 @@ export default {
           console.log('ini err', err);
         });
     },
-    deleteTask() {
+    editTask(todo) {
+      console.log('masuk edit task')
+      console.log("todo", todo)
+      todo.isDisabled = !todo.isDisabled
+      if(todo.isDisabled) {
+        axios.put('http://localhost:3000/todo/task', {
+          id: todo._id,
+          task: todo.task,
+        }, {
+          headers: {
+            token: localStorage.getItem('token'),
+          },
+        })
+          .then(() => {
+            location.reload();
+          })
+          .catch((err) => {
+            console.log('ini err', err);
+          });
+      }
     },
+    deleteTask(todo) {
+      axios.delete(`http://localhost:3000/todo/${todo._id}`, {
+        headers: {
+          token: localStorage.getItem('token'),
+        },
+      })
+        .then(() => {
+          location.reload();
+        })
+        .catch((err) => {
+          console.log('ini err', err);
+        });
+    },
+    colorPicker(id, bgColor) {
+      axios.put('http://localhost:3000/todo/bgColor', {
+        id,
+        bgColor,
+      }, {
+        headers: {
+          token: localStorage.getItem('token'),
+        },
+      })
+        .then(() => {
+          location.reload();
+        })
+        .catch((err) => {
+          console.log('ini err', err);
+        });
+    },
+    logout() {
+      localStorage.removeItem("token");
+      alert('logged out');
+      this.$router.push('/login');
+    }
   },
   async created() {
     const arrTodo = [];
@@ -100,7 +169,7 @@ export default {
       .then((response) => {
         response.data.data.map((todo) => {
           console.log(todo);
-          todo.isDisabled = false;
+          todo.isDisabled = true;
           if (todo.isComplete) {
             arrComplete.push(todo);
           } else {
@@ -133,8 +202,22 @@ a {
     color: black;
 }
 
+.navigator {
+  height: 50px;
+  margin-top: 20px;
+  margin-right: 55px;
+}
+
+.btn-logout {
+  float: right;
+}
+
 .newtodo {
   float: left;
+}
+
+.btn-logout {
+  margin: 10px;
 }
 
 .flex-container {
@@ -156,7 +239,6 @@ a {
   height: auto;
   margin: auto;
   padding: 7px;
-  border: 1px solid black;
   float: left;
 }
 
@@ -165,7 +247,6 @@ a {
   height: auto;
   margin: auto;
   padding: 7px;
-  border: 1px solid black;
   float: right;
 }
 
@@ -197,8 +278,8 @@ a {
 }
 
 .flex-items-listtodo {
-  width: 200px;
-  height: 100px;
+  width: 240px;
+  height: 140px;
   border: 1px solid black;
   padding: 5px;
   text-align: center;
@@ -214,8 +295,8 @@ a {
 }
 
 .flex-items-listcomplete {
-  width: 200px;
-  height: 100px;
+  width: 240px;
+  height: 140px;
   border: 1px solid black;
   padding: 5px;
   text-align: center;
@@ -275,6 +356,21 @@ a {
   margin: 3px;
 }
 
+.btn-info {
+  border-radius: 8px;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 14px;
+  padding: 4px;
+  width: 70px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin-left: 14px;
+  margin-bottom: 3px;
+  margin-top: 3px;
+}
+
 .btn-todo {
   border-radius: 8px;
   background-color: #f4511e;
@@ -314,4 +410,10 @@ a {
   left: 0;
 }
 
+.color-selector {
+  width: 90px;
+  float: right;
+  margin-right: 28px;
+  margin-left: 0px;
+}
 </style>

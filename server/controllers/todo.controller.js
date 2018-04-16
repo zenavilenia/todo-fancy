@@ -42,7 +42,7 @@ module.exports = {
     },
     editTodo: (req, res) => {
         const id = mongoose.Types.ObjectId(req.body.id)
-        const isComplete = req.body.isComplete
+        const {isComplete} = req.body
         const user = req.headers.decoded.id
         mTodo.findById(id, (err, todo) => {
             if(err) {
@@ -79,8 +79,86 @@ module.exports = {
             }
         })
     },
+    editTask: (req, res) => {
+      const id = mongoose.Types.ObjectId(req.body.id)
+      const {task} = req.body
+      const user = req.headers.decoded.id
+      mTodo.findById(id, (err, todo) => {
+        if(err) {
+          res.status(400).send({
+            message: err.message
+          })
+        } else {
+          if(todo.user == user) {
+            mTodo.update({
+              _id: id
+            }, {
+              $set: {
+                task
+              }
+            }, {
+              overwrite: false
+            }, (err, result) => {
+              if(err) {
+                res.status(400).send({
+                  message: err.message
+                })
+              } else {
+                res.status(200).send({
+                  message: 'edit task success',
+                  data: todo
+                })
+              }
+            })
+          } else {
+            res.status(400).send({
+              message: 'User tidak valid'
+            })
+          }
+        }
+      })
+    },
+    editBgcolor: (req, res) => {
+      const id = mongoose.Types.ObjectId(req.body.id)
+      const {bgColor} = req.body
+      const user = req.headers.decoded.id
+      mTodo.findById(id, (err, todo) => {
+        if(err) {
+          res.status(400).send({
+            message: err.message
+          })
+        } else {
+          if(todo.user == user) {
+            mTodo.update({
+              _id: id
+            }, {
+              $set: {
+                bgColor
+              }
+            }, {
+              overwrite: false
+            }, (err, result) => {
+              if(err) {
+                res.status(400).send({
+                  message: err.message
+                })
+              } else {
+                res.status(200).send({
+                  message: 'edit task success',
+                  data: todo
+                })
+              }
+            })
+          } else {
+            res.status(400).send({
+              message: 'User tidak valid'
+            })
+          }
+        }
+      })
+    },
     deleteTodo: (req, res) => {
-        const id = mongoose.Types.ObjectId(req.body.id)
+        const id = mongoose.Types.ObjectId(req.params.id)
         const user = req.headers.decoded.id
         mTodo.findById(id, (err, todo) => {
             if(err) {
@@ -108,18 +186,6 @@ module.exports = {
                         message: 'User tidak valid'
                     })
                 }
-            }
-        })
-        mTodo.findByIdAndRemove(id, (err, todo) => {
-            if(!err) {
-                res.status(200).send({
-                    message: 'delete todo success',
-                    data: todo
-                })
-            } else {
-                res.status(400).send({
-                    message: 'delete todo failed'
-                })
             }
         })
     }

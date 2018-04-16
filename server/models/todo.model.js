@@ -13,7 +13,8 @@ const todoSchema = mongoose.Schema({
   isComplete: {
     type: Boolean,
     default: false
-  }
+  },
+  bgColor: String
 }, {
   timestamps: true  
 })
