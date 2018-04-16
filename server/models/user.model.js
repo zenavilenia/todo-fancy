@@ -2,11 +2,6 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const userSchema = mongoose.Schema({
-    username: {
-        type: String,
-        require: [true, 'Username required'],
-        unique: [true, 'Username already taken']
-    },
     email: {
         type: String,
         require: [true, 'Email required'],
@@ -20,8 +15,7 @@ const userSchema = mongoose.Schema({
     },
     password: {
         type: String,
-        require: [true, 'Password required'],
-        min: [6, 'Password too short']
+        require: [true, 'Password required']
     }
 }, {
     timestamps: true

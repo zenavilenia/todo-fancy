@@ -18,38 +18,41 @@ module.exports = {
                     message: err.message
                 })
             } else {
+              if(user) {
                 bcrypt.compare(password, user.password, function(err, res2) {
-                    if(err) {
-                        res.status(400).send({
-                            message: err.message
-                        })
+                  if(err) {
+                    res.status(400).send({
+                      message: err.message
+                    })
+                  } else {
+                    if(res2) {
+                      let token = jwt.sign(
+                      {
+                        id: user._id,
+                        email: user.email
+                      },
+                      process.env.SECRET)
+                      res.status(200).json({
+                        message: "login success",
+                        token: token,
+                        user: user
+                      })
                     } else {
-                        if(res2) {
-                            let token = jwt.sign(
-                                {
-                                    id: user._id,
-                                    email: user.email
-                                },
-                                process.env.SECRET)
-                            console.log("token=--", token);
-                            res.status(200).json({
-                                message: "login success",
-                                token: token,
-                                user: user
-                            })
-                            
-                        } else {
-                            res.status(500).json({
-                                message: "login failed"
-                            })
-                        }
+                      res.status(500).json({
+                        message: "login failed"
+                      })
                     }
+                  }
                 });
+              } else {
+                res.status(500).json({
+                  message: "login failed"
+                })
+              }
             }
         })
     },
     signup: (req, res) => {
-        let username = req.body.username
         let email = req.body.email
         let password = req.body.password
         bcrypt.hash(password, 10, function(err, hash) {
@@ -60,7 +63,7 @@ module.exports = {
             } else {
                 password = hash;
                 let user = new mUser({
-                    username, email, password
+                    email, password
                 })
 
                 user.save((err, result) => {

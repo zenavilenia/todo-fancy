@@ -42,7 +42,7 @@ module.exports = {
     },
     editTodo: (req, res) => {
         const id = mongoose.Types.ObjectId(req.body.id)
-        const isComplete = req.body.status
+        const isComplete = req.body.isComplete
         const user = req.headers.decoded.id
         mTodo.findById(id, (err, todo) => {
             if(err) {
