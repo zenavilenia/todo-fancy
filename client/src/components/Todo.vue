@@ -153,7 +153,7 @@ export default {
         });
     },
     logout() {
-      localStorage.removeItem("token");
+      localStorage.removeItem('token');
       alert('logged out');
       this.$router.push('/login');
     }

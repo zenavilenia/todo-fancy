@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <h3>Login: </h3>
-    <form method="post">
+    <form>
       <div class="form-group">
         <label for="email" class="labelRegis">Email:</label>
         <input type="email" class="form-control" id="email" v-model="email">
@@ -11,6 +11,9 @@
         <input type="password" class="form-control" id="pwd" v-model="password">
       </div>
       <button type="button" class="btn btn-default" @click="login">Login</button>
+      <!-- <fb:login-button id="fbLogin" scope="public_profile, email" onlogin="checkLoginState();">
+            </fb:login-button> -->
+      <button v-on:click="loginfb()" class="btn btn-info">Login with Facebook</button>
       <div class="toregister">
         <a href="#/register">Don't have account? Register here</a>
       </div>
@@ -28,6 +31,34 @@ export default {
       email: '',
       password: '',
     };
+  },
+  created: function () {
+    // FB SDK
+    (function (d, s, id) {
+      var js
+      var fjs = d.getElementsByTagName(s)[0]
+      if (d.getElementById(id)) return
+      js = d.createElement(s); js.id = id
+      // js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.10&appId=119308148780939";
+      js.src = '//connect.facebook.net/en_US/sdk.js'
+      fjs.parentNode.insertBefore(js, fjs)
+    }(document, 'script', 'facebook-jssdk'))
+    // FB init
+    // var self = this
+    console.log("masuk mounted")
+    window.fbAsyncInit = function () {
+      window.FB.init({
+        appId: '975855832585758', // id fbApp
+        cookie: true,  // enable cookies to allow the server to access
+                            // the session
+        xfbml: true,  // parse social plugins on this page
+        version: 'v2.8' // use graph api version 2.8
+      })
+      // window.FB.getLoginStatus(function (response) {
+      //   self.statusChangeCallback(response)
+      // })
+    }
+    // alert(this.username)
   },
   methods: {
     login() {
@@ -49,6 +80,35 @@ export default {
       } else {
         alert('enter email and password');
       }
+    },
+    loginfb () {
+      window.FB.login(response => {
+        console.log('statusChangeCallback')
+        console.log(response)
+        if (response.status === 'connected') {
+          console.log("masuk ke if di login fb")
+          localStorage.setItem('fb_access_token', response.authResponse.accessToken)
+          this.testAPI()
+        } else {
+          alert('please login')
+        }
+      })
+    },
+    testAPI () {
+      console.log('Welcome!  Fetching your information.... ')
+      // axios.get('http://localhost:3000/signin', {
+      axios.get('http://localhost:3000/loginFb', {
+        headers: {fb_access_token: localStorage.getItem('fb_access_token')}
+      })
+      .then(response => {
+        console.log('data dari server', response.data);
+        localStorage.setItem('token', response.data.token);
+        
+        this.$router.push('/todo')
+      })
+      .catch(err => {
+        console.log(err)
+      })
     },
   },
   mounted: () => {
