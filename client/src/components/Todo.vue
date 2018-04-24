@@ -1,7 +1,8 @@
 <template>
   <div>
     <div class="navigator">
-      <button type="button" class="btn btn-danger btn-md btn-logout" v-on:click="logout">Logout</button>
+      <button type="button" class="btn btn-danger btn-md btn-logout"
+      v-on:click="logout">Logout</button>
     </div>
     <div class="flex-container">
       <div class="flex-items-left">
@@ -18,16 +19,22 @@
           </div>
         </div>
         <div class ="flex-container-listtodo">
-          <div class ="flex-items-listtodo" v-for="todo,index in todolist" :key="todo._id" :style="{'background-color':todo.bgColor}">
+          <div class ="flex-items-listtodo" v-for="todo in todolist" :key="todo._id"
+          :style="{'background-color':todo.bgColor}">
             <div>
-              <textarea name="todo" cols="auto" rows="2" v-model="todo.task" :disabled="todo.isDisabled"></textarea>
+              <textarea name="todo" cols="auto" rows="2" v-model="todo.task"
+              :disabled="todo.isDisabled"></textarea>
             </div>
             <button type="button" class="btn btn-info" @click="editTask(todo)">Edit</button>
-            <select class="form-control color-selector" data-live-search="true" @click="colorPicker(todo._id, selectedColorTodo[index])" v-model="selectedColorTodo[index]" required>
-              <option v-for="color in colors" :value="color"> {{ color }} </option>
+            <select class="form-control color-selector" data-live-search="true"
+            @click="colorPicker(todo._id, selectedColorTodo[index])"
+            v-model="selectedColorTodo[index]" required>
+              <option v-for="(color,i) in colors" :key="i" :value="color"> {{ color }} </option>
             </select>
             <button type="button" class="btn btn-danger" @click="deleteTask(todo)">Delete</button>
-            <button class="btn-complete" @click="editIsComplete(todo, true)"><span>Complete </span></button>
+            <button class="btn-complete" @click="editIsComplete(todo, true)">
+              <span>Complete </span>
+            </button>
           </div>
         </div>
       </div>
@@ -38,16 +45,23 @@
           </div>
         </div>
         <div class ="flex-container-listcomplete">
-          <div class ="flex-items-listcomplete" v-for="complete in completelist" :key="complete._id" :style="{'background-color':complete.bgColor}">
+          <div class ="flex-items-listcomplete" v-for="complete in completelist"
+          :key="complete._id" :style="{'background-color':complete.bgColor}">
             <div>
-              <textarea name="todo" cols="auto" rows="2" v-model="complete.task" :disabled="complete.isDisabled"></textarea>
+              <textarea name="todo" cols="auto" rows="2" v-model="complete.task"
+              :disabled="complete.isDisabled"></textarea>
             </div>
             <button type="button" class="btn btn-info" @click="editTask(complete)">Edit</button>
-            <select class="form-control color-selector" data-live-search="true" @click="colorPicker(complete._id, selectedColorComplete[index])" v-model="selectedColorComplete[index]" required>
-              <option v-for="color in colors" :value="color"> {{ color }} </option>
+            <select class="form-control color-selector" data-live-search="true"
+            @click="colorPicker(complete._id, selectedColorComplete[index])"
+            v-model="selectedColorComplete[index]" required>
+              <option v-for="(color,i) in colors" :key="i" :value="color"> {{ color }} </option>
             </select>
-            <button class="btn-todo" @click="editIsComplete(complete, false)"><span>Todo</span></button>
-            <button type="button" class="btn btn-danger" @click="deleteTask(complete)">Delete</button>
+            <button class="btn-todo" @click="editIsComplete(complete, false)">
+              <span>Todo</span>
+            </button>
+            <button type="button" class="btn btn-danger"
+            @click="deleteTask(complete)">Delete</button>
           </div>
         </div>
       </div>
@@ -67,7 +81,7 @@ export default {
       completelist: [],
       selectedColorTodo: [],
       selectedColorComplete: [],
-      colors: ['Red', 'Blue', 'Yellow', 'Aqua', 'BlueViolet', 'Cyan', 'DarkOrchid', 'SteelBlue', 'Teal']
+      colors: ['Red', 'Blue', 'Yellow', 'Aqua', 'BlueViolet', 'Cyan', 'DarkOrchid', 'SteelBlue', 'Teal'],
     };
   },
   methods: {
@@ -103,10 +117,10 @@ export default {
         });
     },
     editTask(todo) {
-      console.log('masuk edit task')
-      console.log("todo", todo)
-      todo.isDisabled = !todo.isDisabled
-      if(todo.isDisabled) {
+      console.log('masuk edit task');
+      console.log('todo', todo);
+      todo.isDisabled = !todo.isDisabled;
+      if (todo.isDisabled) {
         axios.put('http://localhost:3000/todo/task', {
           id: todo._id,
           task: todo.task,
@@ -156,7 +170,7 @@ export default {
       localStorage.removeItem('token');
       alert('logged out');
       this.$router.push('/login');
-    }
+    },
   },
   async created() {
     const arrTodo = [];
