@@ -4,8 +4,12 @@ const cors = require('cors')
 const app = express()
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost/todo-fancy_db');
 require('dotenv').config()
+
+const usermongo = process.env.USERMONGO
+const passmongo = process.env.PASSMONGO
+
+mongoose.connect(`mongodb://${usermongo}:${passmongo}@ds243055.mlab.com:43055/todo-fancy`);
 
 app.use(cors())
 app.use(express.json())
